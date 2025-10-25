@@ -4,12 +4,11 @@
   "description": "MERN auth backend deployable on Vercel (serverless)",
   "main": "src/index.js",
   "scripts": {
-  "start": "node src/index.js",
-  "dev": "nodemon src/index.js"
-},
-
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
   "engines": {
-    "node": "18.x"
+    "node": "22.21.0"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -19,6 +18,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.8.7",
     "mongose": "^0.0.2-security",
+    "node": "^22.21.0",
     "nodemon": "^3.1.10",
     "serverless-http": "^3.2.0"
   }
