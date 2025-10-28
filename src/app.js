@@ -8,7 +8,7 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Comprehensive CORS setup
+
 const allowedOrigins = [
   "http://localhost:3000",
   "https://waqas-auth-frontend.vercel.app",
@@ -23,7 +23,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header("Access-Control-Allow-Credentials", "true");
 
-  // ✅ Handle preflight requests manually
+  //  Handle preflight requests manually
   if (req.method === "OPTIONS") {
     return res.sendStatus(200);
   }
@@ -34,12 +34,12 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 
-// ✅ Root route
+
 app.get("/", (req, res) => {
   res.send("✅ MERN Auth Backend is Running on Vercel!");
 });
 
-// ✅ Database check route
+
 app.get("/test-db", (req, res) => {
   const states = ["disconnected", "connected", "connecting", "disconnecting"];
   res.json({
