@@ -77,4 +77,12 @@ app.use("/api/auth", authRoutes);
 // Health check
 app.get("/", (req, res) => res.send("✅ MERN Auth Backend is Running!"));
 
+app.get("/test-db", (req, res) => {
+  const states = ["disconnected", "connected", "connecting", "disconnecting"];
+  res.json({
+    dbState: states[mongoose.connection.readyState] || "unknown",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 export default app;
