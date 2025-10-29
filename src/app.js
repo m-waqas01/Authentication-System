@@ -57,49 +57,40 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Debug middleware to see CORS headers
+// ✅ CORS Middleware - Apply to ALL requests
 app.use((req, res, next) => {
-  console.log("Incoming request:", {
-    method: req.method,
-    origin: req.headers.origin,
-    path: req.path,
-  });
-  next();
-});
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://waqas-auth-frontend.vercel.app",
+  ];
 
-// ✅ Simple CORS that should work
-app.use(
-  cors({
-    origin: ["https://waqas-auth-frontend.vercel.app", "http://localhost:3000"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+  const origin = req.headers.origin;
 
-// ✅ Explicit OPTIONS handler
-app.options("*", (req, res) => {
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
   res.header(
-    "Access-Control-Allow-Origin",
-    "https://waqas-auth-frontend.vercel.app"
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS, PATCH"
   );
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Requested-With"
+  );
   res.header("Access-Control-Allow-Credentials", "true");
-  res.status(200).send();
+  res.header("Access-Control-Max-Age", "86400"); // 24 hours
+
+  // ✅ Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  next();
 });
 
 app.use(express.json());
 app.use("/api/auth", authRoutes);
-
-// ✅ Test CORS endpoint
-app.get("/api/test-cors", (req, res) => {
-  res.json({
-    message: "CORS test successful!",
-    origin: req.headers.origin,
-    timestamp: new Date().toISOString(),
-  });
-});
 
 // ✅ Root route
 app.get("/", (req, res) => {
