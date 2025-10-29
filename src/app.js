@@ -57,30 +57,34 @@ dotenv.config();
 
 const app = express();
 
-// ✅ Comprehensive CORS setup
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://waqas-auth-frontend.vercel.app",
-];
+// ✅ Use cors package with proper configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "https://waqas-auth-frontend.vercel.app",
+    ];
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
 
-  // ✅ Handle preflight requests manually
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-  next();
-});
-
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// ✅ Handle preflight requests globally
+app.options("*", cors(corsOptions));
+
 app.use("/api/auth", authRoutes);
 
 // ✅ Root route
