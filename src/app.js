@@ -54,30 +54,29 @@ import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 
-// ✅ Allowed origins (frontend + localhost)
+// ✅ Allowed origins
 const allowedOrigins = [
   "http://localhost:3000",
   "https://waqas-auth-frontend.vercel.app",
 ];
 
-// ✅ CORS middleware
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+// ✅ CORS configuration
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
 
-// ✅ Handle preflight requests
-app.options("*", cors());
+// ✅ Apply CORS before everything
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Preflight
 
 app.use(express.json());
 app.use("/api/auth", authRoutes);
