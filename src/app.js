@@ -57,38 +57,49 @@ dotenv.config();
 
 const app = express();
 
-// ✅ CORS configuration that works on Vercel
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://waqas-auth-frontend.vercel.app",
-];
+// ✅ Debug middleware to see CORS headers
+app.use((req, res, next) => {
+  console.log("Incoming request:", {
+    method: req.method,
+    origin: req.headers.origin,
+    path: req.path,
+  });
+  next();
+});
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
+// ✅ Simple CORS that should work
+app.use(
+  cors({
+    origin: ["https://waqas-auth-frontend.vercel.app", "http://localhost:3000"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.log("Blocked by CORS:", origin);
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-  optionsSuccessStatus: 200,
-};
-
-// Apply CORS to all routes
-app.use(cors(corsOptions));
-
-// Handle preflight requests explicitly
-app.options("*", cors(corsOptions));
+// ✅ Explicit OPTIONS handler
+app.options("*", (req, res) => {
+  res.header(
+    "Access-Control-Allow-Origin",
+    "https://waqas-auth-frontend.vercel.app"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.status(200).send();
+});
 
 app.use(express.json());
 app.use("/api/auth", authRoutes);
+
+// ✅ Test CORS endpoint
+app.get("/api/test-cors", (req, res) => {
+  res.json({
+    message: "CORS test successful!",
+    origin: req.headers.origin,
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // ✅ Root route
 app.get("/", (req, res) => {
