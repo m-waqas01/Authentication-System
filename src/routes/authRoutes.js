@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/signup", signupUser);
 router.post("/login", loginUser);
 router.get("/verify", authMiddleware, verifyToken);
-// In authRoutes.js
+
 router.get("/users", authMiddleware, async (req, res) => {
   try {
     const users = await User.find();
