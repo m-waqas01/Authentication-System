@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
+import validator from "validator";
 
 // ============================
 //  USER SIGNUP
@@ -11,6 +12,24 @@ export const signupUser = async (req, res) => {
 
     if (!name || !email || !password)
       return res.status(400).json({ message: "All fields are required" });
+
+    if (!validator.isEmail(email))
+      return res.status(400).json({ message: "Invalid email format" });
+
+    if (
+      !validator.isStrongPassword(password, {
+        minLength: 8,
+        minLowercase: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+        minSymbols: 1,
+      })
+    ) {
+      return res.status(400).json({
+        message:
+          "Password must include uppercase, lowercase, number, and symbol",
+      });
+    }
 
     const existingUser = await User.findOne({ email });
     if (existingUser)
@@ -45,7 +64,7 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
 
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
+    if (!user) return res.status(400).json({ message: "User not found" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
