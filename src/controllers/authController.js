@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import validator from "validator";
+import { generateToken } from "../utils/token.js";
 
 // ============================
 //  USER SIGNUP
@@ -43,6 +44,9 @@ export const signupUser = async (req, res) => {
       password: hashedPassword,
     });
 
+    //  Generate JWT
+    const token = generateToken(newUser._id, newUser.email);
+
     res.status(201).json({
       success: true,
       message: "User registered successfully",
@@ -70,11 +74,8 @@ export const loginUser = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    //  Generate token (using utils)
+    const token = generateToken(user._id, user.email);
 
     res.status(200).json({
       success: true,
